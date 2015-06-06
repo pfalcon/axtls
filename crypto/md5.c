@@ -74,6 +74,13 @@ static const uint8_t PADDING[64] =
 #define H(x, y, z) ((x) ^ (y) ^ (z))
 #define I(x, y, z) ((y) ^ ((x) | (~z)))
 
+/* Versions for size-optimized code. */
+#define IDX(v) ((v) & 3)
+#define F_(a, i) ((a[IDX(i + 1)] & a[IDX(i + 2)]) | (~a[IDX(i + 1)] & a[IDX(i + 3)]))
+#define G_(a, i) ((a[IDX(i + 1)] & a[IDX(i + 3)]) | (a[IDX(i + 2)] & ~a[IDX(i + 3)]))
+#define H_(a, i) (a[IDX(i + 1)] ^ a[IDX(i + 2)] ^ a[IDX(i + 3)])
+#define I_(a, i) (a[IDX(i + 2)] ^ (a[IDX(i + 1)] | ~a[IDX(i + 3)]))
+
 /* ROTATE_LEFT rotates x left n bits.  */
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 
@@ -178,6 +185,8 @@ EXP_FUNC void STDCALL MD5_Final(uint8_t *digest, MD5_CTX *ctx)
 /**
  * MD5 basic transformation. Transforms state based on block.
  */
+#if OPTIMIZE_FOR_SPEED
+
 static void MD5Transform(uint32_t state[4], const uint8_t block[64])
 {
     uint32_t a = state[0], b = state[1], c = state[2], 
@@ -262,6 +271,136 @@ static void MD5Transform(uint32_t state[4], const uint8_t block[64])
     state[2] += c;
     state[3] += d;
 }
+
+#else
+
+static void MD5Transform(uint32_t state[4], const uint8_t block[64])
+{
+    uint32_t arr[4], x[MD5_SIZE];
+    memcpy(arr, state, sizeof(arr));
+
+    Decode(x, block, 64);
+
+    static const uint32_t round_ac[] = {
+        0xd76aa478, /* 1 */
+        0xe8c7b756, /* 2 */
+        0x242070db, /* 3 */
+        0xc1bdceee, /* 4 */
+        0xf57c0faf, /* 5 */
+        0x4787c62a, /* 6 */
+        0xa8304613, /* 7 */
+        0xfd469501, /* 8 */
+        0x698098d8, /* 9 */
+        0x8b44f7af, /* 10 */
+        0xffff5bb1, /* 11 */
+        0x895cd7be, /* 12 */
+        0x6b901122, /* 13 */
+        0xfd987193, /* 14 */
+        0xa679438e, /* 15 */
+        0x49b40821, /* 16 */
+        0xf61e2562, /* 17 */
+        0xc040b340, /* 18 */
+        0x265e5a51, /* 19 */
+        0xe9b6c7aa, /* 20 */
+        0xd62f105d, /* 21 */
+         0x2441453, /* 22 */
+        0xd8a1e681, /* 23 */
+        0xe7d3fbc8, /* 24 */
+        0x21e1cde6, /* 25 */
+        0xc33707d6, /* 26 */
+        0xf4d50d87, /* 27 */
+        0x455a14ed, /* 28 */
+        0xa9e3e905, /* 29 */
+        0xfcefa3f8, /* 30 */
+        0x676f02d9, /* 31 */
+        0x8d2a4c8a, /* 32 */
+        0xfffa3942, /* 33 */
+        0x8771f681, /* 34 */
+        0x6d9d6122, /* 35 */
+        0xfde5380c, /* 36 */
+        0xa4beea44, /* 37 */
+        0x4bdecfa9, /* 38 */
+        0xf6bb4b60, /* 39 */
+        0xbebfbc70, /* 40 */
+        0x289b7ec6, /* 41 */
+        0xeaa127fa, /* 42 */
+        0xd4ef3085, /* 43 */
+         0x4881d05, /* 44 */
+        0xd9d4d039, /* 45 */
+        0xe6db99e5, /* 46 */
+        0x1fa27cf8, /* 47 */
+        0xc4ac5665, /* 48 */
+        0xf4292244, /* 49 */
+        0x432aff97, /* 50 */
+        0xab9423a7, /* 51 */
+        0xfc93a039, /* 52 */
+        0x655b59c3, /* 53 */
+        0x8f0ccc92, /* 54 */
+        0xffeff47d, /* 55 */
+        0x85845dd1, /* 56 */
+        0x6fa87e4f, /* 57 */
+        0xfe2ce6e0, /* 58 */
+        0xa3014314, /* 59 */
+        0x4e0811a1, /* 60 */
+        0xf7537e82, /* 61 */
+        0xbd3af235, /* 62 */
+        0x2ad7d2bb, /* 63 */
+        0xeb86d391, /* 64 */
+    };
+
+    static const uint8_t round1_s[] = {
+        7, 12, 17, 22,
+        5,  9, 14, 20,
+        4, 11, 16, 23,
+        6, 10, 15, 21,
+    };
+
+    static const uint8_t round_order[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        1, 6, 11, 0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12,
+        5, 8, 11, 14, 1, 4, 7, 10, 13, 0, 3, 6, 9, 12, 15, 2,
+        0, 7, 14, 5, 12, 3, 10, 1, 8, 15, 6, 13, 4, 11, 2, 9,
+    };
+
+    unsigned i;
+
+    const uint8_t *round_s = round1_s - 4;
+    for (i = 0; i < 64; i++) {
+        int off = IDX(4 - i);
+        uint32_t v;
+
+        // Code size is bigger
+        //round_s = round1_s + (i >> 4) * 4;
+        if ((i & 15) == 0) {
+            round_s += 4;
+        }
+
+        if (i < 32) {
+            if (i < 16) {
+                v = F_(arr, off);
+            } else {
+                v = G_(arr, off);
+            }
+        } else {
+            if (i < 48) {
+                v = H_(arr, off);
+            } else {
+                v = I_(arr, off);
+            }
+        }
+        v += arr[off];
+        v += x[round_order[i]] + round_ac[i];
+        v = ROTATE_LEFT(v, round_s[i & 3]);
+        v += arr[IDX(off + 1)];
+        arr[off] = v;
+    }
+
+    state[0] += arr[0];
+    state[1] += arr[1];
+    state[2] += arr[2];
+    state[3] += arr[3];
+}
+#endif // OPTIMIZE_FOR_SPEED
 
 /**
  * Encodes input (uint32_t) into output (uint8_t). Assumes len is
