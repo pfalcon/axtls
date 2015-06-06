@@ -46,27 +46,30 @@ void hmac_md5(const uint8_t *msg, int length, const uint8_t *key,
         int key_len, uint8_t *digest)
 {
     MD5_CTX context;
-    uint8_t k_ipad[64];
-    uint8_t k_opad[64];
+    uint8_t k_pad[64];
     int i;
 
-    memset(k_ipad, 0, sizeof k_ipad);
-    memset(k_opad, 0, sizeof k_opad);
-    memcpy(k_ipad, key, key_len);
-    memcpy(k_opad, key, key_len);
-
-    for (i = 0; i < 64; i++) 
+    memset(k_pad, 0, sizeof k_pad);
+    memcpy(k_pad, key, key_len);
+    for (i = 0; i < 64; i++)
     {
-        k_ipad[i] ^= 0x36;
-        k_opad[i] ^= 0x5c;
+        k_pad[i] ^= 0x36;
     }
 
     MD5_Init(&context);
-    MD5_Update(&context, k_ipad, 64);
+    MD5_Update(&context, k_pad, 64);
     MD5_Update(&context, msg, length);
     MD5_Final(digest, &context);
+
+    memset(k_pad, 0, sizeof k_pad);
+    memcpy(k_pad, key, key_len);
+    for (i = 0; i < 64; i++) 
+    {
+        k_pad[i] ^= 0x5c;
+    }
+
     MD5_Init(&context);
-    MD5_Update(&context, k_opad, 64);
+    MD5_Update(&context, k_pad, 64);
     MD5_Update(&context, digest, MD5_SIZE);
     MD5_Final(digest, &context);
 }
