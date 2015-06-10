@@ -980,6 +980,10 @@ static int send_raw_packet(SSL *ssl, uint8_t protocol)
                 return SSL_ERROR_CONN_LOST;
         }
 
+#ifdef PORT_USE_SELECT
+        // TODO: This should be factored into SOCKET_WAIT_WRITABLE(),
+        // with semantic being waiting until socket can be written
+        // regardless whether it is in blocking or non-blocking mode.
         /* keep going until the write buffer has some space */
         if (sent != pkt_size)
         {
@@ -991,6 +995,7 @@ static int send_raw_packet(SSL *ssl, uint8_t protocol)
             if (select(ssl->client_fd + 1, NULL, &wfds, NULL, NULL) < 0)
                 return SSL_ERROR_CONN_LOST;
         }
+#endif
     }
 
     SET_SSL_FLAG(SSL_NEED_RECORD);  /* reset for next time */
