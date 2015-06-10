@@ -918,7 +918,7 @@ static int send_raw_packet(SSL *ssl, uint8_t protocol)
 #ifdef WIN32
             if (GetLastError() != WSAEWOULDBLOCK)
 #else
-            if (errno != EAGAIN && errno != EWOULDBLOCK)
+            if (SOCKET_ERRNO() != EAGAIN && SOCKET_ERRNO() != EWOULDBLOCK)
 #endif
                 return SSL_ERROR_CONN_LOST;
         }
@@ -1150,7 +1150,7 @@ int basic_read(SSL *ssl, uint8_t **in_data)
 #ifdef WIN32
         if (GetLastError() == WSAEWOULDBLOCK)
 #else
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        if (SOCKET_ERRNO() == EAGAIN || SOCKET_ERRNO() == EWOULDBLOCK)
 #endif
             return 0;
     }
