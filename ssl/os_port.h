@@ -141,6 +141,7 @@ EXP_FUNC int STDCALL getdomainname(char *buf, int buf_size);
 #define SOCKET_READ(A,B,C)      read(A,B,C)
 #define SOCKET_WRITE(A,B,C)     write(A,B,C)
 #define SOCKET_CLOSE(A)         if (A >= 0) close(A)
+#define SOCKET_ERRNO()          errno
 #define TTY_FLUSH()
 
 #ifndef be64toh
