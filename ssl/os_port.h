@@ -84,6 +84,7 @@ extern "C" {
 #define SOCKET_READ(A,B,C)      recv(A,B,C,0)
 #define SOCKET_WRITE(A,B,C)     send(A,B,C,0)
 #define SOCKET_CLOSE(A)         closesocket(A)
+#define PORT_USE_SELECT
 #define srandom(A)              srand(A)
 #define random()                rand()
 #define getpid()                _getpid()
@@ -142,6 +143,7 @@ EXP_FUNC int STDCALL getdomainname(char *buf, int buf_size);
 #define SOCKET_WRITE(A,B,C)     write(A,B,C)
 #define SOCKET_CLOSE(A)         if (A >= 0) close(A)
 #define SOCKET_ERRNO()          errno
+#define PORT_USE_SELECT
 #define TTY_FLUSH()
 
 #ifndef be64toh
