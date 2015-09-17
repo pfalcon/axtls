@@ -194,7 +194,7 @@ struct _SSL
     int16_t next_state;
     int16_t hs_status;
     DISPOSABLE_CTX *dc;         /* temporary data which we'll get rid of soon */
-    int client_fd;
+    long client_fd;
     const cipher_info_t *cipher_info;
     void *encrypt_ctx;
     void *decrypt_ctx;
@@ -211,7 +211,7 @@ struct _SSL
     uint16_t session_index;
     SSL_SESSION *session;
 #endif
-#ifdef CONFIG_SSL_CERT_VERIFICATION
+#if defined(CONFIG_SSL_CERT_VERIFICATION) || defined(CONFIG_SSL_ENABLE_CLIENT)
     X509_CTX *x509_ctx;
 #endif
 
@@ -256,7 +256,7 @@ typedef struct _SSL_CTX SSLCTX;
 
 extern const uint8_t ssl_prot_prefs[NUM_PROTOCOLS];
 
-SSL *ssl_new(SSL_CTX *ssl_ctx, int client_fd);
+SSL *ssl_new(SSL_CTX *ssl_ctx, long client_fd);
 void disposable_new(SSL *ssl);
 void disposable_free(SSL *ssl);
 int send_packet(SSL *ssl, uint8_t protocol, 
@@ -287,7 +287,7 @@ void remove_ca_certs(CA_CERT_CTX *ca_cert_ctx);
 int do_client_connect(SSL *ssl);
 #endif
 
-#ifdef CONFIG_SSL_FULL_MODE
+#ifdef CONFIG_SSL_DIAGNOSTICS
 void DISPLAY_STATE(SSL *ssl, int is_send, uint8_t state, int not_ok);
 void DISPLAY_BYTES(SSL *ssl, const char *format, 
         const uint8_t *data, int size, ...);
@@ -307,9 +307,9 @@ void DISPLAY_BYTES(SSL *ssl, const char *format,/* win32 has no variadic macros 
 #endif
 #endif
 
-#ifdef CONFIG_SSL_CERT_VERIFICATION
+//#ifdef CONFIG_SSL_CERT_VERIFICATION
 int process_certificate(SSL *ssl, X509_CTX **x509_ctx);
-#endif
+//#endif
 
 SSL_SESSION *ssl_session_update(int max_sessions, 
         SSL_SESSION *ssl_sessions[], SSL *ssl,

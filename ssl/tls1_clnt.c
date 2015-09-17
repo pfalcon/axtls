@@ -63,12 +63,13 @@ static int send_cert_verify(SSL *ssl);
 /*
  * Establish a new SSL connection to an SSL server.
  */
-EXP_FUNC SSL * STDCALL ssl_client_new(SSL_CTX *ssl_ctx, int client_fd, const
+EXP_FUNC SSL * STDCALL ssl_client_new(SSL_CTX *ssl_ctx, long client_fd, const
         uint8_t *session_id, uint8_t sess_id_size, SSL_EXTENSIONS* ssl_ext)
 {
     SSL *ssl = ssl_new(ssl_ctx, client_fd);
     ssl->version = SSL_PROTOCOL_VERSION_MAX; /* try top version first */
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     if (session_id && ssl_ctx->num_sessions)
     {
         if (sess_id_size > SSL_SESSION_ID_SIZE) /* validity check */
@@ -81,6 +82,7 @@ EXP_FUNC SSL * STDCALL ssl_client_new(SSL_CTX *ssl_ctx, int client_fd, const
         ssl->sess_id_size = sess_id_size;
         SET_SSL_FLAG(SSL_SESSION_RESUME);   /* just flag for later */
     }
+#endif
 
     ssl->extensions = ssl_ext;
 
@@ -307,7 +309,9 @@ static int process_server_hello(SSL *ssl)
 {
     uint8_t *buf = ssl->bm_data;
     int pkt_size = ssl->bm_index;
+#ifndef CONFIG_SSL_SKELETON_MODE
     int num_sessions = ssl->ssl_ctx->num_sessions;
+#endif
     uint8_t sess_id_size;
     int offset, ret = SSL_OK;
 
@@ -337,6 +341,7 @@ static int process_server_hello(SSL *ssl)
         goto error;
     }
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     if (num_sessions)
     {
         ssl->session = ssl_session_update(num_sessions,
@@ -350,6 +355,7 @@ static int process_server_hello(SSL *ssl)
                 SSL_SESSION_ID_SIZE-sess_id_size);
         }
     }
+#endif
 
     memcpy(ssl->session_id, &buf[offset], sess_id_size);
     ssl->sess_id_size = sess_id_size;

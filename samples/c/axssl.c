@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
                 strcmp(argv[1], "s_server") && strcmp(argv[1], "s_client")))
         print_options(argc > 1 ? argv[1] : "");
 
-    strcmp(argv[1], "s_server") ? 
-        do_client(argc, argv) : do_server(argc, argv);
+//    strcmp(argv[1], "s_server") ? 
+        do_client(argc, argv);// : do_server(argc, argv);
     return 0;
 }
 
@@ -573,6 +573,7 @@ static void do_client(int argc, char *argv[])
         exit(1);
     }
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     if (private_key_file)
     {
         int obj_type = SSL_OBJ_RSA_KEY;
@@ -608,6 +609,7 @@ static void do_client(int argc, char *argv[])
             exit(1);
         }
     }
+#endif
 
     free(cert);
     free(ca_cert);

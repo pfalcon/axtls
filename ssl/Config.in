@@ -34,16 +34,6 @@ config CONFIG_SSL_CERT_VERIFICATION
         have an SSL server which requires client authentication (which is 
         uncommon in browser applications).
 
-config CONFIG_SSL_ENABLE_CLIENT
-    bool "Client/Server enabled"
-    help
-        Enable client/server functionality (including peer authentication).
-
-        The axssl sample runs with the "s_client" option enabled.
-
-        This mode produces a library about 51kB in size. Use this mode if you
-        require axTLS to use SSL client functionality (the SSL server code
-        is always enabled).
 
 config CONFIG_SSL_FULL_MODE
     bool "Client/Server enabled with diagnostics"
@@ -79,9 +69,25 @@ config CONFIG_SSL_SKELETON_MODE
 
 endchoice
 
+config CONFIG_SSL_ENABLE_CLIENT
+    bool "Client enabled"
+    help
+        Enable client functionality.
+
+        The axssl sample runs with the "s_client" option enabled.
+
+        This mode produces a library about 51kB in size. Use this mode if you
+        require axTLS to use SSL client functionality (the SSL server code
+        is always enabled).
+
+config CONFIG_SSL_DIAGNOSTICS
+    bool "Diagnostic messages"
+    help
+        Enable support for diagnostics of connection progress and state.
+
 choice
     prompt "Protocol Preference"
-    depends on !CONFIG_SSL_SKELETON_MODE
+#    depends on !CONFIG_SSL_SKELETON_MODE
     default CONFIG_SSL_PROT_MEDIUM
 
 config CONFIG_SSL_PROT_LOW
@@ -109,6 +115,12 @@ config CONFIG_SSL_PROT_HIGH
         This will use the strongest cipher(s) at the cost of speed.
 
 endchoice
+
+config CONFIG_SSL_AES
+    bool "Enable AES cipher"
+    default y
+    help
+        Enable/disable AES support.
 
 config CONFIG_SSL_USE_DEFAULT_KEY
     bool "Enable default key"

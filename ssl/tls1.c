@@ -169,13 +169,13 @@ EXP_FUNC SSL_CTX *STDCALL ssl_ctx_new(uint32_t options, int num_sessions)
     ssl_ctx->options = options;
     RNG_initialize();
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     if (load_key_certs(ssl_ctx) < 0)
     {
         free(ssl_ctx);  /* can't load our key/certificate pair, so die */
         return NULL;
     }
 
-#ifndef CONFIG_SSL_SKELETON_MODE
     ssl_ctx->num_sessions = num_sessions;
 #endif
 
@@ -531,7 +531,7 @@ EXP_FUNC const char * STDCALL ssl_get_cert_subject_alt_dnsname(const SSL *ssl,
 /*
  * Find an ssl object based on the client's file descriptor.
  */
-EXP_FUNC SSL * STDCALL ssl_find(SSL_CTX *ssl_ctx, int client_fd)
+EXP_FUNC SSL * STDCALL ssl_find(SSL_CTX *ssl_ctx, long client_fd)
 {
     SSL *ssl;
 
@@ -603,7 +603,7 @@ static const cipher_info_t *get_cipher_info(uint8_t cipher)
 /*
  * Get a new ssl context for a new connection.
  */
-SSL *ssl_new(SSL_CTX *ssl_ctx, int client_fd)
+SSL *ssl_new(SSL_CTX *ssl_ctx, long client_fd)
 {
     SSL *ssl = (SSL *)calloc(1, sizeof(SSL));
     ssl->ssl_ctx = ssl_ctx;
@@ -1499,9 +1499,9 @@ static int do_handshake(SSL *ssl, uint8_t *buf, int read_len)
         add_packet(ssl, buf, hs_len); 
 
 #if defined(CONFIG_SSL_ENABLE_CLIENT)
-    ret = is_client ? 
-        do_clnt_handshake(ssl, handshake_type, buf, hs_len) :
-        do_svr_handshake(ssl, handshake_type, buf, hs_len);
+    ret = //is_client ? 
+        do_clnt_handshake(ssl, handshake_type, buf, hs_len) ;
+        //do_svr_handshake(ssl, handshake_type, buf, hs_len);
 #else
     ret = do_svr_handshake(ssl, handshake_type, buf, hs_len);
 #endif
@@ -1994,6 +1994,7 @@ EXP_FUNC int STDCALL ssl_verify_cert(const SSL *ssl)
 
     return ret;
 }
+#endif /* CONFIG_SSL_CERT_VERIFICATION */
 
 /**
  * Process a certificate message.
@@ -2065,6 +2066,7 @@ int process_certificate(SSL *ssl, X509_CTX **x509_ctx)
     chain = certs[0];
     cert_used[0] = 1;
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     // repeat until the end of the chain is found
     while (1)
     {
@@ -2104,6 +2106,7 @@ int process_certificate(SSL *ssl, X509_CTX **x509_ctx)
     {
         ret = ssl_verify_cert(ssl);
     }
+#endif
 
     ssl->next_state = is_client ? HS_SERVER_HELLO_DONE : HS_CLIENT_KEY_XCHG;
     ssl->dc->bm_proc_index += offset;
@@ -2118,12 +2121,12 @@ error:
     return ret;
 }
 
-#endif /* CONFIG_SSL_CERT_VERIFICATION */
+//#endif /* CONFIG_SSL_CERT_VERIFICATION */
 
 /**
  * Debugging routine to display SSL handshaking stuff.
  */
-#ifdef CONFIG_SSL_FULL_MODE
+#ifdef CONFIG_SSL_DIAGNOSTICS
 /**
  * Debugging routine to display SSL states.
  */
@@ -2420,7 +2423,7 @@ EXP_FUNC void STDCALL ssl_display_error(int error_code) {}
 
 #ifdef CONFIG_BINDINGS
 #if !defined(CONFIG_SSL_ENABLE_CLIENT)
-EXP_FUNC SSL * STDCALL ssl_client_new(SSL_CTX *ssl_ctx, int client_fd, const
+EXP_FUNC SSL * STDCALL ssl_client_new(SSL_CTX *ssl_ctx, long client_fd, const
         uint8_t *session_id, uint8_t sess_id_size)
 {
     printf("%s", unsupported_str);

@@ -51,11 +51,13 @@ extern "C" {
 
 
 /* enable features based on a 'super-set' capbaility. */
+#if 0
 #if defined(CONFIG_SSL_FULL_MODE) 
 #define CONFIG_SSL_ENABLE_CLIENT
 #define CONFIG_SSL_CERT_VERIFICATION
 #elif defined(CONFIG_SSL_ENABLE_CLIENT)
 #define CONFIG_SSL_CERT_VERIFICATION
+#endif
 #endif
 
 /**************************************************************************
@@ -242,14 +244,15 @@ void RSA_free(RSA_CTX *ctx);
 int RSA_decrypt(const RSA_CTX *ctx, const uint8_t *in_data, uint8_t *out_data,
         int out_len, int is_decryption);
 bigint *RSA_private(const RSA_CTX *c, bigint *bi_msg);
-#if defined(CONFIG_SSL_CERT_VERIFICATION) || defined(CONFIG_SSL_GENERATE_X509_CERT)
+// Don't bother to ifdef prototypes, let them be
+//#if defined(CONFIG_SSL_CERT_VERIFICATION) || defined(CONFIG_SSL_GENERATE_X509_CERT)
 bigint *RSA_sign_verify(BI_CTX *ctx, const uint8_t *sig, int sig_len,
         bigint *modulus, bigint *pub_exp);
 bigint *RSA_public(const RSA_CTX * c, bigint *bi_msg);
 int RSA_encrypt(const RSA_CTX *ctx, const uint8_t *in_data, uint16_t in_len, 
         uint8_t *out_data, int is_signing);
 void RSA_print(const RSA_CTX *ctx);
-#endif
+//#endif
 
 /**************************************************************************
  * RNG declarations 
