@@ -62,7 +62,7 @@ STATIC_LIB=$(AXTLS_HOME)/$(STAGE)/axtls.static.lib
 CRYPTO_PATH=$(AXTLS_HOME)\\crypto\\
 endif
 
-libs: $(TARGET1) $(TARGET2)
+libs: $(TARGET1) #$(TARGET2)
 
 CRYPTO_OBJ=\
 	$(CRYPTO_PATH)aes.o \

@@ -39,7 +39,7 @@
 #include "crypto.h"
 
 /* all commented out in skeleton mode */
-#ifndef CONFIG_SSL_SKELETON_MODE
+#ifdef CONFIG_SSL_AES
 
 #define rot1(x) (((x) << 24) | ((x) >> 8))
 #define rot2(x) (((x) << 16) | ((x) >> 16))

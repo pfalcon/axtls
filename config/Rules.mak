@@ -174,7 +174,8 @@ ifeq ($(strip $(CONFIG_DEBUG)),y)
 else
     CFLAGS+=$(WARNINGS) $(OPTIMIZATIONS) -D_GNU_SOURCE -DNDEBUG
     LDFLAGS += -Wl,-warn-common
-    STRIPCMD:=$(STRIP) -s --remove-section=.note --remove-section=.comment
+    STRIPCMD:=echo
+    #$(STRIP) -s --remove-section=.note --remove-section=.comment
 endif
 ifeq ($(strip $(CONFIG_STATIC)),y)
     LDFLAGS += --static

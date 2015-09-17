@@ -231,7 +231,7 @@ void RSA_print(const RSA_CTX *rsa_ctx)
 }
 #endif
 
-#if defined(CONFIG_SSL_CERT_VERIFICATION) || defined(CONFIG_SSL_GENERATE_X509_CERT)
+#if defined(CONFIG_SSL_CERT_VERIFICATION) || defined(CONFIG_SSL_GENERATE_X509_CERT) || (CONFIG_SSL_ENABLE_CLIENT)
 /**
  * Performs c = m^e mod n
  */
