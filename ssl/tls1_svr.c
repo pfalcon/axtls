@@ -27,7 +27,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#if 0
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -49,7 +49,7 @@ static int process_cert_verify(SSL *ssl);
 /*
  * Establish a new SSL connection to an SSL client.
  */
-EXP_FUNC SSL * STDCALL ssl_server_new(SSL_CTX *ssl_ctx, int client_fd)
+EXP_FUNC SSL * STDCALL ssl_server_new(SSL_CTX *ssl_ctx, long client_fd)
 {
     SSL *ssl;
 
@@ -181,6 +181,7 @@ error:
 /*
  * Send the entire server hello sequence
  */
+#if 0
 static int send_server_hello_sequence(SSL *ssl)
 {
     int ret;
@@ -292,6 +293,7 @@ static int send_server_hello_done(SSL *ssl)
     return send_packet(ssl, PT_HANDSHAKE_PROTOCOL, 
                             g_hello_done, sizeof(g_hello_done));
 }
+#endif
 
 /*
  * Pull apart a client key exchange message. Decrypt the pre-master key (using
@@ -407,5 +409,7 @@ end_cert_vfy:
 error:
     return ret;
 }
+
+#endif
 
 #endif
