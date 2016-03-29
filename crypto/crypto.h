@@ -198,9 +198,9 @@ EXP_FUNC void STDCALL MD5_Final(uint8_t *digest, MD5_CTX *);
 /**************************************************************************
  * HMAC declarations 
  **************************************************************************/
-void hmac_md5(const uint8_t *msg, int length, const uint8_t *key, 
+void ssl_hmac_md5(const uint8_t *msg, int length, const uint8_t *key, 
         int key_len, uint8_t *digest);
-void hmac_sha1(const uint8_t *msg, int length, const uint8_t *key, 
+void ssl_hmac_sha1(const uint8_t *msg, int length, const uint8_t *key, 
         int key_len, uint8_t *digest);
 void hmac_sha256(const uint8_t *msg, int length, const uint8_t *key, 
         int key_len, uint8_t *digest);
