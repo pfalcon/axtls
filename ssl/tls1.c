@@ -81,7 +81,7 @@ static const cipher_info_t cipher_info[NUM_PROTOCOLS] =
         2*(SHA1_SIZE+16+16),            /* key block size */
         16,                             /* block padding size */
         SHA1_SIZE,                      /* digest size */
-        hmac_sha1,                      /* hmac algorithm */
+        ssl_hmac_sha1,                  /* hmac algorithm */
         (crypt_func)AES_cbc_encrypt,    /* encrypt */
         (crypt_func)AES_cbc_decrypt     /* decrypt */
     },
@@ -92,7 +92,7 @@ static const cipher_info_t cipher_info[NUM_PROTOCOLS] =
         2*(SHA1_SIZE+32+16),            /* key block size */
         16,                             /* block padding size */
         SHA1_SIZE,                      /* digest size */
-        hmac_sha1,                      /* hmac algorithm */
+        ssl_hmac_sha1,                  /* hmac algorithm */
         (crypt_func)AES_cbc_encrypt,    /* encrypt */
         (crypt_func)AES_cbc_decrypt     /* decrypt */
     },       
@@ -711,9 +711,9 @@ static void p_hash_md5(const uint8_t *sec, int sec_len,
     uint8_t a1[128];
 
     /* A(1) */
-    hmac_md5(seed, seed_len, sec, sec_len, a1);
+    ssl_hmac_md5(seed, seed_len, sec, sec_len, a1);
     memcpy(&a1[MD5_SIZE], seed, seed_len);
-    hmac_md5(a1, MD5_SIZE+seed_len, sec, sec_len, out);
+    ssl_hmac_md5(a1, MD5_SIZE+seed_len, sec, sec_len, out);
 
     while (olen > MD5_SIZE)
     {
@@ -722,11 +722,11 @@ static void p_hash_md5(const uint8_t *sec, int sec_len,
         olen -= MD5_SIZE;
 
         /* A(N) */
-        hmac_md5(a1, MD5_SIZE, sec, sec_len, a2);
+        ssl_hmac_md5(a1, MD5_SIZE, sec, sec_len, a2);
         memcpy(a1, a2, MD5_SIZE);
 
         /* work out the actual hash */
-        hmac_md5(a1, MD5_SIZE+seed_len, sec, sec_len, out);
+        ssl_hmac_md5(a1, MD5_SIZE+seed_len, sec, sec_len, out);
     }
 }
 
@@ -739,9 +739,9 @@ static void p_hash_sha1(const uint8_t *sec, int sec_len,
     uint8_t a1[128];
 
     /* A(1) */
-    hmac_sha1(seed, seed_len, sec, sec_len, a1);
+    ssl_hmac_sha1(seed, seed_len, sec, sec_len, a1);
     memcpy(&a1[SHA1_SIZE], seed, seed_len);
-    hmac_sha1(a1, SHA1_SIZE+seed_len, sec, sec_len, out);
+    ssl_hmac_sha1(a1, SHA1_SIZE+seed_len, sec, sec_len, out);
 
     while (olen > SHA1_SIZE)
     {
@@ -750,11 +750,11 @@ static void p_hash_sha1(const uint8_t *sec, int sec_len,
         olen -= SHA1_SIZE;
 
         /* A(N) */
-        hmac_sha1(a1, SHA1_SIZE, sec, sec_len, a2);
+        ssl_hmac_sha1(a1, SHA1_SIZE, sec, sec_len, a2);
         memcpy(a1, a2, SHA1_SIZE);
 
         /* work out the actual hash */
-        hmac_sha1(a1, SHA1_SIZE+seed_len, sec, sec_len, out);
+        ssl_hmac_sha1(a1, SHA1_SIZE+seed_len, sec, sec_len, out);
     }
 }
 

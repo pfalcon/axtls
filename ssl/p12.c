@@ -409,7 +409,7 @@ int pkcs12_decode(SSL_CTX *ssl_ctx, SSLObjLoader *ssl_obj, const char *password)
                             key, SHA1_SIZE, PKCS12_MAC_ID)) < 0)
         goto error;
 
-    hmac_sha1(auth_safes, auth_safes_len, key, SHA1_SIZE, mac);
+    ssl_hmac_sha1(auth_safes, auth_safes_len, key, SHA1_SIZE, mac);
 
     if (memcmp(mac, orig_mac, SHA1_SIZE))
     {
