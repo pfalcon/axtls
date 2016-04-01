@@ -324,7 +324,9 @@ static int process_server_hello(SSL *ssl)
     else if (ssl->version < SSL_PROTOCOL_MIN_VERSION)
     {
         ret = SSL_ERROR_INVALID_VERSION;
+#ifdef CONFIG_SSL_DIAGNOSTICS
         ssl_display_error(ret);
+#endif
         goto error;
     }
 
