@@ -61,7 +61,7 @@ EXP_FUNC SSL * STDCALL ssl_server_new(SSL_CTX *ssl_ctx, long client_fd)
     ssl = ssl_new(ssl_ctx, client_fd);
     ssl->next_state = HS_CLIENT_HELLO;
 
-#ifdef CONFIG_SSL_FULL_MODE
+#ifdef CONFIG_SSL_DIAGNOSTICS
     if (ssl_ctx->chain_length == 0)
         printf("Warning - no server certificate defined\n"); TTY_FLUSH();
 #endif
@@ -139,7 +139,9 @@ static int process_client_hello(SSL *ssl)
     else if (version < SSL_PROTOCOL_MIN_VERSION)  /* old version supported? */
     {
         ret = SSL_ERROR_INVALID_VERSION;
+#ifdef CONFIG_SSL_DIAGNOSTICS
         ssl_display_error(ret);
+#endif
         goto error;
     }
 
