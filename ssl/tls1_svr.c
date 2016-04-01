@@ -27,12 +27,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#if 0
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "os_port.h"
 #include "ssl.h"
+
+#ifdef CONFIG_SSL_ENABLE_SERVER
 
 static const uint8_t g_hello_done[] = { HS_SERVER_HELLO_DONE, 0, 0, 0 };
 
@@ -254,7 +255,7 @@ error:
 /*
  * Send the entire server hello sequence
  */
-#if 0
+#if CONFIG_SSL_ENABLE_SERVER
 static int send_server_hello_sequence(SSL *ssl)
 {
     int ret;
