@@ -352,7 +352,7 @@ int add_cert(SSL_CTX *ssl_ctx, const uint8_t *buf, int len)
 
     if (i == CONFIG_SSL_MAX_CERTS) /* too many certs */
     {
-#ifdef CONFIG_SSL_FULL_MODE
+#ifdef CONFIG_SSL_DIAGNOSTICS
         printf("Error: maximum number of certs added (%d) - change of "
                 "compile-time configuration required\n",
                 CONFIG_SSL_MAX_CERTS);
@@ -1575,7 +1575,7 @@ int send_alert(SSL *ssl, int error_code)
         return SSL_ERROR_CONN_LOST;
     }
 
-#ifdef CONFIG_SSL_FULL_MODE
+#ifdef CONFIG_SSL_DIAGNOSTICS
     if (IS_SET_SSL_FLAG(SSL_DISPLAY_STATES))
         ssl_display_error(error_code);
 #endif
@@ -2196,11 +2196,13 @@ void DISPLAY_STATE(SSL *ssl, int is_send, uint8_t state, int not_ok)
  */
 void DISPLAY_RSA(SSL *ssl, const RSA_CTX *rsa_ctx)
 {
+#ifdef CONFIG_SSL_FULL_MODE
     if (!IS_SET_SSL_FLAG(SSL_DISPLAY_RSA))
         return;
 
     RSA_print(rsa_ctx);
     TTY_FLUSH();
+#endif
 }
 
 /**
@@ -2417,7 +2419,7 @@ EXP_FUNC const char  * STDCALL ssl_version()
  * Enable the various language bindings to work regardless of the
  * configuration - they just return an error statement and a bad return code.
  */
-#if !defined(CONFIG_SSL_FULL_MODE)
+#if !defined(CONFIG_SSL_DIAGNOSTICS)
 EXP_FUNC void STDCALL ssl_display_error(int error_code) {}
 #endif
 
