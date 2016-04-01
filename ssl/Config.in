@@ -69,6 +69,11 @@ config CONFIG_SSL_SKELETON_MODE
 
 endchoice
 
+config CONFIG_SSL_ENABLE_SERVER
+    bool "Server enabled"
+    help
+        Enable server functionality.
+
 config CONFIG_SSL_ENABLE_CLIENT
     bool "Client enabled"
     help
@@ -124,7 +129,7 @@ config CONFIG_SSL_AES
 
 config CONFIG_SSL_USE_DEFAULT_KEY
     bool "Enable default key"
-    depends on !CONFIG_SSL_SKELETON_MODE
+#    depends on !CONFIG_SSL_SKELETON_MODE
     default y 
     help
         Some applications will not require the default private key/certificate
@@ -253,7 +258,7 @@ config CONFIG_SSL_EXPIRY_TIME
 config CONFIG_X509_MAX_CA_CERTS
     int "Maximum number of certificate authorites"
     default 150
-    depends on !CONFIG_SSL_SERVER_ONLY && !CONFIG_SSL_SKELETON_MODE
+#    depends on !CONFIG_SSL_SERVER_ONLY && !CONFIG_SSL_SKELETON_MODE
     help
         Determines the number of CA's allowed. 
 
