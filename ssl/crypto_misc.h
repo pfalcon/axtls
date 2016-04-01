@@ -111,12 +111,12 @@ struct _x509_ctx
 
 typedef struct _x509_ctx X509_CTX;
 
-#ifdef CONFIG_SSL_CERT_VERIFICATION
+//#ifdef CONFIG_SSL_CERT_VERIFICATION
 typedef struct 
 {
     X509_CTX *cert[CONFIG_X509_MAX_CA_CERTS];
 } CA_CERT_CTX;
-#endif
+//#endif
 
 int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx);
 void x509_free(X509_CTX *x509_ctx);
