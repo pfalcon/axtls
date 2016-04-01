@@ -44,7 +44,7 @@
 #include "os_port.h"
 #include "ssl.h"
 
-#if 0
+#if CONFIG_SSL_ENABLE_SERVER
 
 static int do_obj(SSL_CTX *ssl_ctx, int obj_type, 
                     SSLObjLoader *ssl_obj, const char *password);
@@ -137,7 +137,7 @@ static int do_obj(SSL_CTX *ssl_ctx, int obj_type,
             break;
 
         case SSL_OBJ_X509_CERT:
-//            ret = add_cert(ssl_ctx, ssl_obj->buf, ssl_obj->len);
+            ret = add_cert(ssl_ctx, ssl_obj->buf, ssl_obj->len);
             break;
 
 #ifdef CONFIG_SSL_CERT_VERIFICATION
