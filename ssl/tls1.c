@@ -169,13 +169,15 @@ EXP_FUNC SSL_CTX *STDCALL ssl_ctx_new(uint32_t options, int num_sessions)
     ssl_ctx->options = options;
     RNG_initialize();
 
-#ifndef CONFIG_SSL_SKELETON_MODE
+#ifdef CONFIG_SSL_ENABLE_SERVER
     if (load_key_certs(ssl_ctx) < 0)
     {
         free(ssl_ctx);  /* can't load our key/certificate pair, so die */
         return NULL;
     }
+#endif
 
+#ifndef CONFIG_SSL_SKELETON_MODE
     ssl_ctx->num_sessions = num_sessions;
 #endif
 
@@ -1498,10 +1500,12 @@ static int do_handshake(SSL *ssl, uint8_t *buf, int read_len)
     if (handshake_type != HS_CERT_VERIFY && handshake_type != HS_HELLO_REQUEST)
         add_packet(ssl, buf, hs_len); 
 
-#if defined(CONFIG_SSL_ENABLE_CLIENT)
-    ret = //is_client ? 
-        do_clnt_handshake(ssl, handshake_type, buf, hs_len) ;
-        //do_svr_handshake(ssl, handshake_type, buf, hs_len);
+#if defined(CONFIG_SSL_ENABLE_CLIENT) && defined(CONFIG_SSL_ENABLE_SERVER)
+    ret = is_client ?
+        do_clnt_handshake(ssl, handshake_type, buf, hs_len) :
+        do_svr_handshake(ssl, handshake_type, buf, hs_len);
+#elif defined(CONFIG_SSL_ENABLE_CLIENT)
+    ret = do_clnt_handshake(ssl, handshake_type, buf, hs_len);
 #else
     ret = do_svr_handshake(ssl, handshake_type, buf, hs_len);
 #endif
