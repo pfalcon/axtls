@@ -48,10 +48,19 @@ ssize_t mp_stream_posix_write(void *sock_obj, const void *buf, size_t len);
 ssize_t mp_stream_posix_read(void *sock_obj, void *buf, size_t len);
 extern int mp_stream_errno;
 
+#if 1
 #define SOCKET_READ(A,B,C)      mp_stream_posix_read((void*)A,B,C)
 #define SOCKET_WRITE(A,B,C)     mp_stream_posix_write((void*)A,B,C)
 #define SOCKET_CLOSE(A)         NOT_USED_IN_LIB_CODE
 #define SOCKET_ERRNO() mp_stream_errno
+#else
+#define SOCKET_READ(A,B,C)      read(A,B,C)
+#define SOCKET_WRITE(A,B,C)     write(A,B,C)
+#define SOCKET_CLOSE(A)         if (A >= 0) close(A)
+#define SOCKET_ERRNO()          errno
+#endif
+#define ax_calloc(x, y) calloc(x, y)
+#define ax_open(x, y) open(x, y)
 
 #ifndef be64toh
 #define be64toh(x) __be64_to_cpu(x)
