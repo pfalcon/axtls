@@ -229,7 +229,7 @@ int get_random_NZ(int num_rand_bytes, uint8_t *rand_data)
 /**
  * Some useful diagnostic routines
  */
-#if defined(CONFIG_SSL_FULL_MODE) || defined(CONFIG_DEBUG)
+#if defined(CONFIG_SSL_DIAGNOSTICS) || defined(CONFIG_DEBUG)
 int hex_finish;
 int hex_index;
 
