@@ -197,7 +197,7 @@ typedef void (*hmac_func)(const uint8_t *msg, int length, const uint8_t *key,
 
 int get_file(const char *filename, uint8_t **buf);
 
-#if defined(CONFIG_SSL_FULL_MODE) || defined(WIN32) || defined(CONFIG_DEBUG)
+#if defined(CONFIG_SSL_DIAGNOSTICS) || defined(WIN32) || defined(CONFIG_DEBUG)
 EXP_FUNC void STDCALL print_blob(const char *format, const uint8_t *data, int size, ...);
 #else
     #define print_blob(...)
