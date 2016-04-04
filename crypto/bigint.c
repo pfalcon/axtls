@@ -1379,6 +1379,10 @@ bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp)
      * will reduce to standard left-to-right exponentiation */
     do
     {
+#ifdef __ets__
+        void ets_loop_iter(void);
+        ets_loop_iter();
+#endif
         if (exp_bit_is_one(biexp, i))
         {
             int l = i-window_size+1;
