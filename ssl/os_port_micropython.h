@@ -40,7 +40,9 @@
 #include "os_int.h"
 #include <errno.h>
 #include <sys/types.h>
+#ifndef __ets__
 #include <arpa/inet.h>
+#endif
 #include <sys/time.h>
 #include "config.h"
 
