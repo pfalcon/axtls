@@ -76,8 +76,14 @@ extern "C" {
 #define IS_SET_SSL_FLAG(A)          (ssl->flag & A)
 
 #define MAX_KEY_BYTE_SIZE           512     /* for a 4096 bit key */
+/* On send, will send another SSL fragment if plaintext exceeds RT_MAX_PLAIN_LENGTH */
+#ifndef RT_MAX_PLAIN_LENGTH
 #define RT_MAX_PLAIN_LENGTH         16384
+#endif
+/* Total receive buffer is RT_MAX_PLAIN_LENGTH + RT_EXTRA */
+#ifndef RT_EXTRA
 #define RT_EXTRA                    1024
+#endif
 #define BM_RECORD_OFFSET            5
 
 #define NUM_PROTOCOLS               4
