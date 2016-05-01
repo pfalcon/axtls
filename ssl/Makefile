@@ -94,7 +94,7 @@ include $(AXTLS_HOME)/config/makefile.post
 ifndef CONFIG_PLATFORM_WIN32     # Linux/Unix/Cygwin
 
 $(TARGET1) : $(CRYPTO_OBJ) $(OBJ)
-	$(AR) -r $@ $(CRYPTO_OBJ) $(OBJ)
+	$(AR) -rcs $@ $(CRYPTO_OBJ) $(OBJ)
 
 $(TARGET2) : $(CRYPTO_OBJ) $(OBJ)
 ifndef CONFIG_PLATFORM_CYGWIN
