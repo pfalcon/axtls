@@ -57,41 +57,19 @@ static int send_raw_packet(SSL *ssl, uint8_t protocol);
  * The server will pick the cipher based on the order that the order that the
  * ciphers are listed. This order is defined at compile time.
  */
-#ifdef CONFIG_SSL_SKELETON_MODE
-const uint8_t ssl_prot_prefs[NUM_PROTOCOLS] = 
-{ SSL_RC4_128_SHA };
-#else
 static void session_free(SSL_SESSION *ssl_sessions[], int sess_index);
 
 const uint8_t ssl_prot_prefs[NUM_PROTOCOLS] = 
-#ifdef CONFIG_SSL_PROT_LOW                  /* low security, fast speed */
-{ SSL_RC4_128_SHA, SSL_AES128_SHA, SSL_AES256_SHA, SSL_RC4_128_MD5 };
+#ifdef CONFIG_SSL_PROT_LOW                  /* same as medium for now */
+{ SSL_AES128_SHA, SSL_AES256_SHA };
 #elif CONFIG_SSL_PROT_MEDIUM                /* medium security, medium speed */
-{ SSL_AES128_SHA, SSL_AES256_SHA, SSL_RC4_128_SHA, SSL_RC4_128_MD5 };    
+{ SSL_AES128_SHA, SSL_AES256_SHA };    
 #else /* CONFIG_SSL_PROT_HIGH */            /* high security, low speed */
-{ SSL_AES256_SHA, SSL_AES128_SHA, SSL_RC4_128_SHA, SSL_RC4_128_MD5 };
+{ SSL_AES256_SHA, SSL_AES128_SHA };
 #endif
-#endif /* CONFIG_SSL_SKELETON_MODE */
-
 /**
  * The cipher map containing all the essentials for each cipher.
  */
-#ifdef CONFIG_SSL_SKELETON_MODE
-static const cipher_info_t cipher_info[NUM_PROTOCOLS] = 
-{
-    {   /* RC4-SHA */
-        SSL_RC4_128_SHA,                /* RC4-SHA */
-        16,                             /* key size */
-        0,                              /* iv size */ 
-        2*(SHA1_SIZE+16),               /* key block size */
-        0,                              /* no padding */
-        SHA1_SIZE,                      /* digest size */
-        hmac_sha1,                      /* hmac algorithm */
-        (crypt_func)RC4_crypt,          /* encrypt */
-        (crypt_func)RC4_crypt           /* decrypt */
-    },
-};
-#else
 static const cipher_info_t cipher_info[NUM_PROTOCOLS] = 
 {
     {   /* AES128-SHA */
@@ -116,34 +94,7 @@ static const cipher_info_t cipher_info[NUM_PROTOCOLS] =
         (crypt_func)AES_cbc_encrypt,    /* encrypt */
         (crypt_func)AES_cbc_decrypt     /* decrypt */
     },       
-    {   /* RC4-SHA */
-        SSL_RC4_128_SHA,                /* RC4-SHA */
-        16,                             /* key size */
-        0,                              /* iv size */ 
-        2*(SHA1_SIZE+16),               /* key block size */
-        0,                              /* no padding */
-        SHA1_SIZE,                      /* digest size */
-        hmac_sha1,                      /* hmac algorithm */
-        (crypt_func)RC4_crypt,          /* encrypt */
-        (crypt_func)RC4_crypt           /* decrypt */
-    },
-    /*
-     * This protocol is from SSLv2 days and is unlikely to be used - but was
-     * useful for testing different possible digest algorithms.
-     */
-    {   /* RC4-MD5 */
-        SSL_RC4_128_MD5,                /* RC4-MD5 */
-        16,                             /* key size */
-        0,                              /* iv size */ 
-        2*(MD5_SIZE+16),                /* key block size */
-        0,                              /* no padding */
-        MD5_SIZE,                       /* digest size */
-        hmac_md5,                       /* hmac algorithm */
-        (crypt_func)RC4_crypt,          /* encrypt */
-        (crypt_func)RC4_crypt           /* decrypt */
-    },
 };
-#endif
 
 static void prf(const uint8_t *sec, int sec_len, uint8_t *seed, int seed_len,
         uint8_t *out, int olen);
@@ -903,7 +854,6 @@ static void *crypt_new(SSL *ssl, uint8_t *key, uint8_t *iv, int is_decrypt)
 {
     switch (ssl->cipher)
     {
-#ifndef CONFIG_SSL_SKELETON_MODE
         case SSL_AES128_SHA:
             {
                 AES_CTX *aes_ctx = (AES_CTX *)malloc(sizeof(AES_CTX));
@@ -928,15 +878,6 @@ static void *crypt_new(SSL *ssl, uint8_t *key, uint8_t *iv, int is_decrypt)
                 }
 
                 return (void *)aes_ctx;
-            }
-
-        case SSL_RC4_128_MD5:
-#endif
-        case SSL_RC4_128_SHA:
-            {
-                RC4_CTX *rc4_ctx = (RC4_CTX *)malloc(sizeof(RC4_CTX));
-                RC4_setup(rc4_ctx, key, 16);
-                return (void *)rc4_ctx;
             }
     }
 
@@ -1156,7 +1097,6 @@ static int set_key_block(SSL *ssl, int is_write)
     memcpy(server_key, q, ciph_info->key_size);
     q += ciph_info->key_size;
 
-#ifndef CONFIG_SSL_SKELETON_MODE 
     if (ciph_info->iv_size)    /* RC4 has no IV, AES does */
     {
         memcpy(client_iv, q, ciph_info->iv_size);
@@ -1164,7 +1104,6 @@ static int set_key_block(SSL *ssl, int is_write)
         memcpy(server_iv, q, ciph_info->iv_size);
         q += ciph_info->iv_size;
     }
-#endif
 
     free(is_write ? ssl->encrypt_ctx : ssl->decrypt_ctx);
 
@@ -1240,31 +1179,8 @@ int basic_read(SSL *ssl, uint8_t **in_data)
         /* check for sslv2 "client hello" */
         if (buf[0] & 0x80 && buf[2] == 1)
         {
-#ifdef CONFIG_SSL_ENABLE_V23_HANDSHAKE
-            uint8_t version = (buf[3] << 4) + buf[4];
-            DISPLAY_BYTES(ssl, "ssl2 record", buf, 5);
-
-            /* should be v3.1 (TLSv1) or better  */
-            ssl->version = ssl->client_version = version;
-
-            if (version > SSL_PROTOCOL_VERSION_MAX)
-            {
-                /* use client's version */
-                ssl->version = SSL_PROTOCOL_VERSION_MAX;
-            }
-            else if (version < SSL_PROTOCOL_MIN_VERSION)  
-            {
-                ret = SSL_ERROR_INVALID_VERSION;
-                ssl_display_error(ret);
-                return ret;
-            }
-
-            add_packet(ssl, &buf[2], 3);
-            ret = process_sslv23_client_hello(ssl); 
-#else
             printf("Error: no SSLv23 handshaking allowed\n"); TTY_FLUSH();
             ret = SSL_ERROR_NOT_SUPPORTED;
-#endif
             goto error; /* not an error - just get out of here */
         }
 
