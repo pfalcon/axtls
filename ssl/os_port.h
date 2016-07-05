@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2015, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -150,15 +150,6 @@ EXP_FUNC int STDCALL getdomainname(char *buf, int buf_size);
 #endif  /* Not Win32 */
 
 /* some functions to mutate the way these work */
-#define malloc(A)       ax_malloc(A)
-#ifndef realloc
-#define realloc(A,B)    ax_realloc(A,B)
-#endif
-#define calloc(A,B)     ax_calloc(A,B)
-
-EXP_FUNC void * STDCALL ax_malloc(size_t s);
-EXP_FUNC void * STDCALL ax_realloc(void *y, size_t s);
-EXP_FUNC void * STDCALL ax_calloc(size_t n, size_t s);
 EXP_FUNC int STDCALL ax_open(const char *pathname, int flags); 
 
 #ifdef CONFIG_PLATFORM_LINUX

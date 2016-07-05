@@ -834,7 +834,7 @@ static int init_read_post_data(char *buf, char *data,
    {
        /* Allocate buffer for the POST data that will be used by proccgi 
           to send POST data to the CGI script */
-       cn->post_data = (char *)ax_calloc(1, (cn->content_length + 1)); 
+       cn->post_data = (char *)calloc(1, (cn->content_length + 1)); 
    }
 
    cn->post_state = 0;
