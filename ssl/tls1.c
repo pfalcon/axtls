@@ -1181,7 +1181,9 @@ int basic_read(SSL *ssl, uint8_t **in_data)
         /* check for sslv2 "client hello" */
         if (buf[0] & 0x80 && buf[2] == 1)
         {
-            printf("Error: no SSLv23 handshaking allowed\n"); TTY_FLUSH();
+#ifdef CONFIG_SSL_FULL_MODE
+            printf("Error: no SSLv23 handshaking allowed\n");
+#endif
             ret = SSL_ERROR_NOT_SUPPORTED;
             goto error; /* not an error - just get out of here */
         }
@@ -1947,7 +1949,6 @@ void DISPLAY_STATE(SSL *ssl, int is_send, uint8_t state, int not_ok)
     }
 
     printf("%s\n", str);
-    TTY_FLUSH();
 }
 
 /**
@@ -2067,7 +2068,6 @@ EXP_FUNC void STDCALL ssl_display_error(int error_code)
     }
 
     printf("\n");
-    TTY_FLUSH();
 }
 
 /**
@@ -2128,7 +2128,6 @@ void DISPLAY_ALERT(SSL *ssl, int alert)
     }
 
     printf("\n");
-    TTY_FLUSH();
 }
 
 #endif /* CONFIG_SSL_FULL_MODE */
