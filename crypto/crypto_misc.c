@@ -120,7 +120,7 @@ EXP_FUNC void STDCALL RNG_initialize()
             exit(1);
         }
     }
-#else
+#elif !defined(__ets__)
     /* start of with a stack to copy across */
     int i;
     memcpy(entropy_pool, &i, ENTROPY_POOL_SIZE);
