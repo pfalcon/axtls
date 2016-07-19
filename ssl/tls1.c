@@ -224,7 +224,9 @@ EXP_FUNC void STDCALL ssl_free(SSL *ssl)
 
     /* may already be free - but be sure */
     free(ssl->encrypt_ctx);
+    ssl->encrypt_ctx = NULL;
     free(ssl->decrypt_ctx);
+    ssl->decrypt_ctx = NULL;
     disposable_free(ssl);
 #ifdef CONFIG_SSL_CERT_VERIFICATION
     x509_free(ssl->x509_ctx);
@@ -1290,8 +1292,8 @@ int basic_read(SSL *ssl, uint8_t **in_data)
                buf[1] == SSL_ALERT_CLOSE_NOTIFY)
             {
               ret = SSL_CLOSE_NOTIFY;
-              ssl_free(ssl);
-              SOCKET_CLOSE(ssl->client_fd);
+              send_alert(ssl, SSL_ALERT_CLOSE_NOTIFY);
+              SET_SSL_FLAG(SSL_SENT_CLOSE_NOTIFY);
             }
             else 
             {
