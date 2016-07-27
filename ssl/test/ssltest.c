@@ -177,78 +177,6 @@ end:
 }
 
 /**************************************************************************
- * RC4 tests 
- *
- * ARC4 tests vectors from OpenSSL (crypto/rc4/rc4test.c)
- **************************************************************************/
-static const uint8_t keys[7][30]=
-{
-    {8,0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef},
-    {8,0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef},
-    {8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {4,0xef,0x01,0x23,0x45},
-    {8,0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef},
-    {4,0xef,0x01,0x23,0x45},
-};
-
-static const uint8_t data_len[7]={8,8,8,20,28,10};
-static uint8_t data[7][30]=
-{
-    {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xff},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        0x00,0x00,0x00,0x00,0xff},
-        {0x12,0x34,0x56,0x78,0x9A,0xBC,0xDE,0xF0,
-            0x12,0x34,0x56,0x78,0x9A,0xBC,0xDE,0xF0,
-            0x12,0x34,0x56,0x78,0x9A,0xBC,0xDE,0xF0,
-            0x12,0x34,0x56,0x78,0xff},
-            {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff},
-            {0},
-};
-
-static const uint8_t output[7][30]=
-{
-    {0x75,0xb7,0x87,0x80,0x99,0xe0,0xc5,0x96,0x00},
-    {0x74,0x94,0xc2,0xe7,0x10,0x4b,0x08,0x79,0x00},
-    {0xde,0x18,0x89,0x41,0xa3,0x37,0x5d,0x3a,0x00},
-    {0xd6,0xa1,0x41,0xa7,0xec,0x3c,0x38,0xdf,
-        0xbd,0x61,0x5a,0x11,0x62,0xe1,0xc7,0xba,
-        0x36,0xb6,0x78,0x58,0x00},
-        {0x66,0xa0,0x94,0x9f,0x8a,0xf7,0xd6,0x89,
-            0x1f,0x7f,0x83,0x2b,0xa8,0x33,0xc0,0x0c,
-            0x89,0x2e,0xbe,0x30,0x14,0x3c,0xe2,0x87,
-            0x40,0x01,0x1e,0xcf,0x00},
-            {0xd6,0xa1,0x41,0xa7,0xec,0x3c,0x38,0xdf,0xbd,0x61,0x00},
-            {0},
-};
-
-static int RC4_test(BI_CTX *bi_ctx)
-{
-    int i, res = 1;
-    RC4_CTX s;
-
-    for (i = 0; i < 6; i++)
-    {
-        RC4_setup(&s, &keys[i][1], keys[i][0]);
-        RC4_crypt(&s, data[i], data[i], data_len[i]);
-
-        if (memcmp(data[i], output[i], data_len[i]))
-        {
-            printf("Error: RC4 CRYPT #%d failed\n", i);
-            goto end;
-        }
-    }
-
-    res = 0;
-    printf("All RC4 tests passed\n");
-
-end:
-    return res;
-}
-
-/**************************************************************************
  * SHA1 tests 
  *
  * Run through a couple of the RFC3174 tests to verify that SHA1 is correct.
@@ -522,9 +450,9 @@ end:
  **************************************************************************/
 static int HMAC_test(BI_CTX *bi_ctx)
 {
-    uint8_t key[SHA1_SIZE];
-    uint8_t ct[SHA1_SIZE];
-    uint8_t dgst[SHA1_SIZE];
+    uint8_t key[SHA256_SIZE];
+    uint8_t ct[SHA256_SIZE];
+    uint8_t dgst[SHA256_SIZE];
     int res = 1;
     const char *key_str;
 
@@ -553,8 +481,8 @@ static int HMAC_test(BI_CTX *bi_ctx)
    
     data_str = "Hi There";
     key_bi = bi_str_import(bi_ctx, "0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B");
-    bi_export(bi_ctx, key_bi, key, SHA1_SIZE);
     ct_bi = bi_str_import(bi_ctx, "B617318655057264E28BC0B6FB378C8EF146BE00");
+    bi_export(bi_ctx, key_bi, key, SHA1_SIZE);
     bi_export(bi_ctx, ct_bi, ct, SHA1_SIZE);
 
     hmac_sha1((const uint8_t *)data_str, 8, 
@@ -570,12 +498,77 @@ static int HMAC_test(BI_CTX *bi_ctx)
     ct_bi = bi_str_import(bi_ctx, "EFFCDF6AE5EB2FA2D27416D5F184DF9C259A7C79");
     bi_export(bi_ctx, ct_bi, ct, SHA1_SIZE);
 
-    hmac_sha1((const uint8_t *)data_str, 28, (const uint8_t *)key_str, 5, dgst);
+    hmac_sha1((const uint8_t *)data_str, 28, (const uint8_t *)key_str, 4, dgst);
     if (memcmp(dgst, ct, SHA1_SIZE))
     {
-        printf("HMAC SHA1 failed\n");
-        exit(1);
+        printf("HMAC SHA1 #2 failed\n");
+        goto end;
     }
+
+    data_str = "Hi There";
+    key_bi = bi_str_import(bi_ctx, "0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B");
+    ct_bi = bi_str_import(bi_ctx,
+            "B0344C61D8DB38535CA8AFCEAF0BF12B881DC200C9833DA726E9376C2E32CFF7");
+    bi_export(bi_ctx, key_bi, key, 20);
+    bi_export(bi_ctx, ct_bi, ct, SHA256_SIZE);
+
+    hmac_sha256((const uint8_t *)data_str, 8, 
+            (const uint8_t *)key, 20, dgst);
+
+    if (memcmp(dgst, ct, SHA256_SIZE))
+    {
+        printf("HMAC SHA256 #1 failed\n");
+        goto end;
+    } 
+
+    data_str = "what do ya want for nothing?";
+    key_str = "Jefe";
+    ct_bi = bi_str_import(bi_ctx,
+            "5BDCC146BF60754E6A042426089575C75A003F089D2739839DEC58B964EC3843");
+    bi_export(bi_ctx, ct_bi, ct, SHA256_SIZE);
+
+    hmac_sha256((const uint8_t *)data_str, 28, 
+            (const uint8_t *)key_str, 4, dgst);
+    if (memcmp(dgst, ct, SHA256_SIZE))
+    {
+        printf("HMAC SHA256 #2 failed\n");
+        goto end;
+    }
+
+    // other test
+    /*uint8_t secret[16];
+    key_str = "9BBE436BA940F017B17652849A71DB35";
+    ct_bi = bi_str_import(bi_ctx, key_str);
+    bi_export(bi_ctx, ct_bi, secret, 16);
+
+    uint8_t random[26];
+    data_str = "74657374206C6162656CA0BA9F936CDA311827A6F796FFD5198C";
+    ct_bi = bi_str_import(bi_ctx, data_str);
+    bi_export(bi_ctx, ct_bi, random, 26);
+
+    uint8_t output[256];
+    p_hash_sha256(secret, 16, random, 26, output, 100);
+    ct_bi = bi_import(bi_ctx, output, 100);
+    bi_print("RESULT", ct_bi);
+    */
+
+    uint8_t secret[48];
+    uint8_t random[256];
+    uint8_t output[256];
+
+    key_str =
+        "8C6D256467157DAEC7BAEBC1371E6DABFF1AB686EFA7DCF6B65242AA6EEBFC0A7472A1E583C4F2B23F784F25A6DE05A6";
+    ct_bi = bi_str_import(bi_ctx, key_str);
+    bi_export(bi_ctx, ct_bi, secret, 48);
+
+    data_str =
+        "636C69656E742066696E697368656475F80B2E4375CFA44105D16694A5E2D232302FF27241BDF52BA681C13E2CDF9F";
+    ct_bi = bi_str_import(bi_ctx, data_str);
+    bi_export(bi_ctx, ct_bi, random, 47);
+
+    p_hash_sha256(secret, 48, random, 47, output, 12);
+    ct_bi = bi_import(bi_ctx, output, 12);
+    bi_print("RESULT1", ct_bi);
 
     res = 0;
     printf("All HMAC tests passed\n");
@@ -2302,13 +2295,6 @@ int main(int argc, char *argv[])
     if (AES_test(bi_ctx))
     {
         printf("AES tests failed\n");
-        goto cleanup;
-    }
-    TTY_FLUSH();
-
-    if (RC4_test(bi_ctx))
-    {
-        printf("RC4 tests failed\n");
         goto cleanup;
     }
     TTY_FLUSH();

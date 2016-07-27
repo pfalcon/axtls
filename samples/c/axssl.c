@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -857,12 +857,12 @@ static void display_cipher(SSL *ssl)
             printf("AES256-SHA");
             break;
 
-        case SSL_RC4_128_SHA:
-            printf("RC4-SHA");
+        case SSL_AES128_SHA256:
+            printf("AES128-SHA256");
             break;
 
-        case SSL_RC4_128_MD5:
-            printf("RC4-MD5");
+        case SSL_AES256_SHA256:
+            printf("AES256-SHA256");
             break;
 
         default:

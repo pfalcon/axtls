@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -36,6 +36,11 @@
 #include "ssl.h"
 
 #ifdef CONFIG_SSL_ENABLE_CLIENT        /* all commented out if no client */
+
+/* support sha512/384/256/224/1 rsa */
+static const uint8_t g_sig_alg[] = { 0x00, 0x10, 
+                0x00, SIG_ALG_EXTENSION, 0x00, 0x0c, 0x00, 0x0a,
+                0x06, 0x01, 0x05, 0x01, 0x04, 0x01, 0x03, 0x01, 0x02, 0x01 };
 
 static int send_client_hello(SSL *ssl);
 static int process_server_hello(SSL *ssl);
@@ -219,6 +224,13 @@ static int send_client_hello(SSL *ssl)
 
     buf[offset++] = 1;              /* no compression */
     buf[offset++] = 0;
+
+    if (ssl->version > SSL_PROTOCOL_VERSION_TLS1_1)
+    {
+        memcpy(&buf[offset], g_sig_alg, sizeof(g_sig_alg));
+        offset += sizeof(g_sig_alg);
+    }
+
     buf[3] = offset - 4;            /* handshake size */
 
     return send_packet(ssl, PT_HANDSHAKE_PROTOCOL, NULL, offset);
@@ -279,13 +291,46 @@ static int process_server_hello(SSL *ssl)
     ssl->sess_id_size = sess_id_size;
     offset += sess_id_size;
 
-    /* get the real cipher we are using */
+    /* get the real cipher we are using - ignore MSB */
     ssl->cipher = buf[++offset];
     ssl->next_state = IS_SET_SSL_FLAG(SSL_SESSION_RESUME) ? 
                                         HS_FINISHED : HS_CERTIFICATE;
 
     offset++;   // skip the compr
     PARANOIA_CHECK(pkt_size, offset);
+
+    // Check for extensions from the server - only the signature algorithm
+    // is supported
+    if (pkt_size > offset) 
+    {
+        if (buf[offset++] > 0) // MSB of extension len must be 0
+        {
+            ret = SSL_ALERT_UNSUPPORTED_EXTENSION;
+            goto error;
+        }
+
+        offset++; // ignore the extension size as we only look at one
+
+        if (buf[offset++] == 0 && buf[offset++] == SIG_ALG_EXTENSION)
+        {
+            if (buf[offset++] != 0) // MSB of alg_sig_len must be 0
+            {
+                ret = SSL_ALERT_UNSUPPORTED_EXTENSION;
+                goto error;
+            }
+
+            int alg_sig_len = buf[offset++];
+            offset += alg_sig_len;
+            PARANOIA_CHECK(pkt_size, offset);
+            // we don't use what comes back (for now)
+        }
+        else
+        {
+            ret = SSL_ALERT_UNSUPPORTED_EXTENSION;
+            goto error;
+        }
+    }
+
     ssl->dc->bm_proc_index = offset+1; 
 
 error:
@@ -313,8 +358,10 @@ static int send_client_key_xchg(SSL *ssl)
     buf[0] = HS_CLIENT_KEY_XCHG;
     buf[1] = 0;
 
-    premaster_secret[0] = 0x03; /* encode the version number */
-    premaster_secret[1] = SSL_PROTOCOL_MINOR_VERSION; /* must be TLS 1.1 */
+    // spec says client must use the what is initially negotiated -
+    // and this is our current version
+    premaster_secret[0] = 0x03; 
+    premaster_secret[1] = SSL_PROTOCOL_VERSION_MAX & 0x0f; 
     if (get_random(SSL_SECRET_SIZE-2, &premaster_secret[2]) < 0)
         return SSL_NOT_OK;
 
