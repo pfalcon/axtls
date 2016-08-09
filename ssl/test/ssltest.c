@@ -552,7 +552,7 @@ static int HMAC_test(BI_CTX *bi_ctx)
     bi_print("RESULT", ct_bi);
     */
 
-    uint8_t secret[48];
+    /*uint8_t secret[48];
     uint8_t random[256];
     uint8_t output[256];
 
@@ -568,7 +568,7 @@ static int HMAC_test(BI_CTX *bi_ctx)
 
     p_hash_sha256(secret, 48, random, 47, output, 12);
     ct_bi = bi_import(bi_ctx, output, 12);
-    bi_print("RESULT1", ct_bi);
+    bi_print("RESULT1", ct_bi);*/
 
     res = 0;
     printf("All HMAC tests passed\n");
