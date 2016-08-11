@@ -52,6 +52,7 @@ static int set_key_block(SSL *ssl, int is_write);
 static int verify_digest(SSL *ssl, int mode, const uint8_t *buf, int read_len);
 static void *crypt_new(SSL *ssl, uint8_t *key, uint8_t *iv, int is_decrypt);
 static int send_raw_packet(SSL *ssl, uint8_t protocol);
+static int check_certificate_chain(SSL *ssl);
 
 /**
  * The server will pick the cipher based on the order that the order that the
@@ -345,6 +346,26 @@ int add_cert(SSL_CTX *ssl_ctx, const uint8_t *buf, int len)
     ssl_cert = &ssl_ctx->certs[i];
     ssl_cert->size = len;
     ssl_cert->buf = (uint8_t *)malloc(len);
+
+    switch (cert->sig_type)
+    {
+        case SIG_TYPE_SHA1:
+            ssl_cert->hash_alg = SIG_ALG_SHA1;
+            break;
+
+        case SIG_TYPE_SHA256:
+            ssl_cert->hash_alg = SIG_ALG_SHA256;
+            break;
+
+        case SIG_TYPE_SHA384:
+            ssl_cert->hash_alg = SIG_ALG_SHA384;
+            break;
+
+        case SIG_TYPE_SHA512:
+            ssl_cert->hash_alg = SIG_ALG_SHA512;
+            break;
+    }
+
     memcpy(ssl_cert->buf, buf, len);
     ssl_ctx->chain_length++;
     len -= offset;
@@ -728,18 +749,10 @@ void add_packet(SSL *ssl, const uint8_t *pkt, int len)
     if (ssl->version >= SSL_PROTOCOL_VERSION_TLS1_2 || ssl->version == 0) 
     {
         SHA256_Update(&ssl->dc->sha256_ctx, pkt, len);
-#if 0
-uint8_t buf[128];
-SHA256_CTX sha256_ctx = ssl->dc->sha256_ctx; // interim copy
-SHA256_Final(buf, &sha256_ctx);
-print_blob("handshake", buf, 8);
-#endif
-
     }
 
-    if (ssl->version < SSL_PROTOCOL_VERSION_TLS1_2 || ssl->version == 0)
+    if (ssl->version < SSL_PROTOCOL_VERSION_TLS1_2)
     {
-        uint8_t q[128]; 
         MD5_Update(&ssl->dc->md5_ctx, pkt, len);
         SHA1_Update(&ssl->dc->sha1_ctx, pkt, len);
     }
@@ -1582,6 +1595,7 @@ int send_alert(SSL *ssl, int error_code)
             break;
 
         case SSL_X509_ERROR(X509_VFY_ERROR_UNSUPPORTED_DIGEST):
+        case SSL_ERROR_INVALID_CERT_HASH_ALG:
             alert_num = SSL_ALERT_UNSUPPORTED_CERTIFICATE;
             break;
 
@@ -1640,6 +1654,7 @@ error:
  */
 int send_certificate(SSL *ssl)
 {
+    int ret = SSL_OK;
     int i = 0;
     uint8_t *buf = ssl->bm_data;
     int offset = 7;
@@ -1648,6 +1663,12 @@ int send_certificate(SSL *ssl)
     buf[0] = HS_CERTIFICATE;
     buf[1] = 0;
     buf[4] = 0;
+
+    if (ssl->version >= SSL_PROTOCOL_VERSION_TLS1_2 &&
+             ((ret = check_certificate_chain(ssl)) != SSL_OK))
+    {
+        goto error;
+    }
 
     while (i < ssl->ssl_ctx->chain_length)
     {
@@ -1667,7 +1688,10 @@ int send_certificate(SSL *ssl)
     buf[2] = chain_length >> 8;        /* handshake length */
     buf[3] = chain_length & 0xff;
     ssl->bm_index = offset;
-    return send_packet(ssl, PT_HANDSHAKE_PROTOCOL, NULL, offset);
+    ret = send_packet(ssl, PT_HANDSHAKE_PROTOCOL, NULL, offset);
+
+error:
+    return ret;
 }
 
 /**
@@ -1873,6 +1897,42 @@ EXP_FUNC int STDCALL ssl_get_config(int offset)
         default:
             return 0;
     }
+}
+
+/**
+ * Check the certificate chain to see if the certs are supported
+ */
+static int check_certificate_chain(SSL *ssl)
+{
+    int i = 0;
+    int ret = SSL_OK;
+
+    while (i < ssl->ssl_ctx->chain_length)
+    {
+        int j = 0;
+        uint8_t found = 0;
+        SSL_CERT *cert = &ssl->ssl_ctx->certs[i];
+
+        while (j < ssl->num_sig_algs)
+        {
+            if (ssl->sig_algs[j++] == cert->hash_alg)
+            {
+                found = 1;
+                break;
+            }
+        } 
+
+        if (!found)
+        {
+            ret = SSL_ERROR_INVALID_CERT_HASH_ALG;
+            goto error;
+        }
+
+        i++;
+    }
+
+error:
+    return ret;
 }
 
 #ifdef CONFIG_SSL_CERT_VERIFICATION
@@ -2167,6 +2227,10 @@ EXP_FUNC void STDCALL ssl_display_error(int error_code)
 
         case SSL_ERROR_NO_CIPHER:
             printf("no cipher");
+            break;
+
+        case SSL_ERROR_INVALID_CERT_HASH_ALG:
+            printf("invalid cert hash algorithm");
             break;
 
         case SSL_ERROR_CONN_LOST:
