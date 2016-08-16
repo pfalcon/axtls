@@ -1189,15 +1189,6 @@ int SSL_server_tests(void)
         goto cleanup;
 
     /*
-     * AES128-SHA TLS1.0
-     */
-    if ((ret = SSL_server_test("AES128-SHA TLS1.0", 
-                    "-cipher AES128-SHA -tls1", 
-                    DEFAULT_CERT, NULL, DEFAULT_KEY, NULL, NULL,
-                    DEFAULT_SVR_OPTION)))
-        goto cleanup;
-
-    /*
      * Session Reuse
      * all the session id's should match for session resumption.
      */
@@ -1250,7 +1241,7 @@ int SSL_server_tests(void)
     /* 
      * RSA1024/SHA384
      */
-    if ((ret = SSL_server_test("RSA1024/SHA256",
+    if ((ret = SSL_server_test("RSA1024/SHA384",
                     "-tls1_2",
                     "../ssl/test/axTLS.x509_1024_sha384.pem" , NULL, 
                     "../ssl/test/axTLS.key_1024",
@@ -1543,7 +1534,7 @@ static void do_server(server_t *svr)
                 "-accept %d -quiet %s > /dev/null", 
                 g_port, svr->openssl_option);
     }
-printf("SERVER %s\n", openssl_buf);
+//printf("SERVER %s\n", openssl_buf);
     SYSTEM(openssl_buf);
 }
 
@@ -1790,13 +1781,6 @@ int SSL_client_tests(void)
                     &ssl_ctx,
                     "-cert ../ssl/test/axTLS.x509_1024.pem "
                     "-key ../ssl/test/axTLS.key_1024.pem -tls1_1", NULL,
-                    DEFAULT_CLNT_OPTION, NULL, NULL, NULL)))
-        goto cleanup;
-
-    if ((ret = SSL_client_test("TLS 1.0", 
-                    &ssl_ctx,
-                    "-cert ../ssl/test/axTLS.x509_1024.pem "
-                    "-key ../ssl/test/axTLS.key_1024.pem -tls1", NULL,
                     DEFAULT_CLNT_OPTION, NULL, NULL, NULL)))
         goto cleanup;
 
