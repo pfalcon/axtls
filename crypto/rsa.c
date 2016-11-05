@@ -157,7 +157,7 @@ int RSA_decrypt(const RSA_CTX *ctx, const uint8_t *in_data,
 
     /* decrypt */
     dat_bi = bi_import(ctx->bi_ctx, in_data, byte_size);
-#ifdef CONFIG_SSL_CERT_VERIFICATION
+#if 1 //def CONFIG_SSL_CERT_VERIFICATION
     decrypted_bi = is_decryption ?  /* decrypt or verify? */
             RSA_private(ctx, dat_bi) : RSA_public(ctx, dat_bi);
 #else   /* always a decryption */
@@ -170,7 +170,7 @@ int RSA_decrypt(const RSA_CTX *ctx, const uint8_t *in_data,
     if (block[i++] != 0)             /* leading 0? */
         return -1;
 
-#ifdef CONFIG_SSL_CERT_VERIFICATION
+#if 1 //def CONFIG_SSL_CERT_VERIFICATION
     if (is_decryption == 0) /* PKCS1.5 signing pads with "0xff"s */
     {
         if (block[i++] != 0x01)     /* BT correct? */
