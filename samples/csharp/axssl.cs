@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -723,12 +723,12 @@ public class axssl
                 Console.WriteLine("AES256-SHA");
                 break;
 
-            case axtls.SSL_RC4_128_SHA:
-                Console.WriteLine("RC4-SHA");
+            case axtls.SSL_AES128_SHA256:
+                Console.WriteLine("AES128-SHA256");
                 break;
 
-            case axtls.SSL_RC4_128_MD5:
-                Console.WriteLine("RC4-MD5");
+            case axtls.SSL_AES256_SHA256:
+                Console.WriteLine("AES128-SHA256");
                 break;
 
             default:

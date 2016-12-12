@@ -1,5 +1,5 @@
 '
-' Copyright (c) 2007, Cameron Rich
+' Copyright (c) 2007-2016, Cameron Rich
 '
 ' All rights reserved.
 '
@@ -534,11 +534,11 @@ Public Class axssl
             Case axtls.SSL_AES256_SHA
                 Console.WriteLine("AES256-SHA")
 
-            Case axtls.SSL_RC4_128_SHA
-                Console.WriteLine("RC4-SHA")
+            Case axtls.SSL_AES128_SHA256
+                Console.WriteLine("AES128-SHA256")
 
-            Case axtls.SSL_RC4_128_MD5
-                Console.WriteLine("RC4-MD5")
+            Case axtls.SSL_AES256_SHA256
+                Console.WriteLine("AES256-SHA256")
 
             Case Else
                 Console.WriteLine("Unknown - " & ssl.GetCipherId())

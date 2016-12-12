@@ -55,7 +55,7 @@ depends on CONFIG_JAVA_BINDINGS
 config CONFIG_JAVA_HOME
     string "Location of JDK"
     default "c:\\Program Files\\Java\\jdk1.5.0_06" if CONFIG_PLATFORM_WIN32 || CONFIG_PLATFORM_CYGWIN
-    default "/usr/local/jdk142" if !CONFIG_PLATFORM_WIN32 && !CONFIG_PLATFORM_CYGWIN
+    default "/usr/lib/jvm/java-7-openjdk-amd64" if !CONFIG_PLATFORM_WIN32 && !CONFIG_PLATFORM_CYGWIN
     depends on CONFIG_JAVA_BINDINGS 
     help
         The location of Sun's JDK.

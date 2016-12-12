@@ -126,7 +126,7 @@ my @raw_data;
 
 if (not defined  $ARGV[0])
 {
-    goto ouch;
+    die "Usage: $0 [-java | -perl | -lua]\n";
 }
 
 if ($ARGV[0] eq "-java")
@@ -149,7 +149,6 @@ elsif ($ARGV[0] eq "-lua")
 }
 else
 {
-ouch:
     die "Usage: $0 [-java | -perl | -lua]\n";
 }
 

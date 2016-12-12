@@ -1,7 +1,7 @@
 #!/usr/local/bin/lua
 
 --
--- Copyright (c) 2007, Cameron Rich
+-- Copyright (c) 2007-2016, Cameron Rich
 --
 -- All rights reserved.
 --
@@ -523,10 +523,10 @@ function display_cipher(ssl)
         print("AES128-SHA")
     elseif cipher_id == axtlsl.SSL_AES256_SHA then
         print("AES256-SHA")
-    elseif axtlsl.SSL_RC4_128_SHA then
-        print("RC4-SHA")
-    elseif axtlsl.SSL_RC4_128_MD5 then
-        print("RC4-MD5")
+    elseif axtlsl.SSL_AES128_SHA256 then
+        print("AES128-SHA256")
+    elseif axtlsl.SSL_AES256_SHA256 then
+        print("AES256-SHA256")
     else 
         print("Unknown - "..cipher_id)
     end

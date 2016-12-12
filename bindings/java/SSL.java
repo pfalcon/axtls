@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -89,8 +89,8 @@ public class SSL
      * @return The cipher id which is one of:
      * - SSL_AES128_SHA (0x2f)
      * - SSL_AES256_SHA (0x35)
-     * - SSL_RC4_128_SHA (0x05)
-     * - SSL_RC4_128_MD5 (0x04)
+     * - SSL_AES128_SHA256 (0x3c)
+     * - SSL_AES256_SHA256 (0x3d)
      */
     public byte getCipherId()
     {

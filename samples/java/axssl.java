@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Cameron Rich
+ * Copyright (c) 2007-2016, Cameron Rich
  * 
  * All rights reserved.
  * 
@@ -714,10 +714,10 @@ public class axssl
             System.out.println("AES128-SHA");
         else if (ciph_id == axtlsj.SSL_AES256_SHA)
             System.out.println("AES256-SHA");
-        else if (ciph_id == axtlsj.SSL_RC4_128_SHA)
-            System.out.println("RC4-SHA");
-        else if (ciph_id == axtlsj.SSL_RC4_128_MD5)
-            System.out.println("RC4-MD5");
+        else if (ciph_id == axtlsj.SSL_AES128_SHA256)
+            System.out.println("AES128-SHA256");
+        else if (ciph_id == axtlsj.SSL_AES256_SHA256)
+            System.out.println("AES256-SHA256");
         else
             System.out.println("Unknown - " + ssl.getCipherId());
     }

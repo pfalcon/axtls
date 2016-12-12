@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (c) 2007, Cameron Rich
+# Copyright (c) 2007-2016, Cameron Rich
 #
 # All rights reserved.
 #
@@ -602,13 +602,13 @@ sub display_cipher
     {
         printf("AES256-SHA");
     }
-    elsif ($axtlsp::SSL_RC4_128_SHA)
+    elsif ($axtlsp::SSL_AES128_SHA256)
     {
-        printf("RC4-SHA");
+        printf("AES128-SHA256");
     }
-    elsif ($axtlsp::SSL_RC4_128_MD5)
+    elsif ($axtlsp::SSL_AES256_SHA256)
     {
-        printf("RC4-MD5");
+        printf("AES256-SHA256");
     }
     else 
     {
