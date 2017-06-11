@@ -75,4 +75,11 @@ extern int mp_stream_errno;
 
 #define TTY_FLUSH()
 
+#include "../../../extmod/crypto-algorithms/sha256.h"
+
+#define SHA256_CTX CRYAL_SHA256_CTX
+#define SHA256_Init(a) sha256_init(a)
+#define SHA256_Update(a, b, c) sha256_update(a, b, c)
+#define SHA256_Final(a, b) sha256_final(b, a)
+
 #endif
