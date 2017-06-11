@@ -32,6 +32,8 @@
 #include "os_port.h"
 #include "crypto.h"
 
+#ifndef SHA256_CTX
+
 #define GET_UINT32(n,b,i)                       \
 {                                               \
     (n) = ((uint32_t) (b)[(i)    ] << 24)       \
@@ -272,3 +274,5 @@ void SHA256_Final(uint8_t *digest, SHA256_CTX *ctx)
     PUT_UINT32(ctx->state[6], digest, 24);
     PUT_UINT32(ctx->state[7], digest, 28);
 }
+
+#endif // SHA256_CTX

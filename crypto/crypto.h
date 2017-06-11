@@ -130,6 +130,8 @@ void SHA1_Final(uint8_t *digest, SHA1_CTX *);
 
 #define SHA256_SIZE   32
 
+#ifndef SHA256_CTX
+#define SHA256_CTX SHA256_CTX
 typedef struct
 {
     uint32_t total[2];
@@ -140,6 +142,7 @@ typedef struct
 void SHA256_Init(SHA256_CTX *c);
 void SHA256_Update(SHA256_CTX *, const uint8_t *input, int len);
 void SHA256_Final(uint8_t *digest, SHA256_CTX *);
+#endif
 
 /**************************************************************************
  * SHA512 declarations 
