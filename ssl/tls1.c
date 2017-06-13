@@ -1354,6 +1354,7 @@ int basic_read(SSL *ssl, uint8_t **in_data)
         /* do we violate the spec with the message size?  */
         if (ssl->need_bytes > RT_MAX_PLAIN_LENGTH+RT_EXTRA-BM_RECORD_OFFSET)
         {
+            printf("TLS buffer overflow, record size: %u (+5)\n", ssl->need_bytes);
             ret = SSL_ERROR_RECORD_OVERFLOW;              
             goto error;
         }
