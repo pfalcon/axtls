@@ -74,7 +74,9 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
     int begin_tbs, end_tbs;
     int ret = X509_NOT_OK, offset = 0, cert_size = 0;
     X509_CTX *x509_ctx;
+#ifdef CONFIG_SSL_CERT_VERIFICATION
     BI_CTX *bi_ctx;
+#endif
 
     *ctx = (X509_CTX *)calloc(1, sizeof(X509_CTX));
     x509_ctx = *ctx;
@@ -117,9 +119,9 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
         goto end_cert;
     }
 
+#ifdef CONFIG_SSL_CERT_VERIFICATION /* only care if doing verification */
     bi_ctx = x509_ctx->rsa_ctx->bi_ctx;
 
-#ifdef CONFIG_SSL_CERT_VERIFICATION /* only care if doing verification */
     /* use the appropriate signature algorithm */
     switch (x509_ctx->sig_type)
     {
