@@ -1784,12 +1784,14 @@ int process_certificate(SSL *ssl, X509_CTX **x509_ctx)
     int cert_size, offset = 5, offset_start;
     int total_cert_size = (buf[offset]<<8) + buf[offset+1];
     int is_client = IS_SET_SSL_FLAG(SSL_IS_CLIENT);
-    X509_CTX *chain = 0;
     X509_CTX **certs = 0;
     int *cert_used = 0;
     int num_certs = 0;
-    int i = 0;
     offset += 2;
+#ifndef CONFIG_SSL_SKELETON_MODE
+    X509_CTX *chain = 0;
+    int i = 0;
+#endif
 
     PARANOIA_CHECK(total_cert_size, offset);
 
@@ -1836,10 +1838,11 @@ int process_certificate(SSL *ssl, X509_CTX **x509_ctx)
 
     // third pass - link certs together, assume server cert is the first
     *x509_ctx = certs[0];
-    chain = certs[0];
     cert_used[0] = 1;
 
 #ifndef CONFIG_SSL_SKELETON_MODE
+    chain = certs[0];
+
     // repeat until the end of the chain is found
     while (1)
     {
