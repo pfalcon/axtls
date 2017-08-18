@@ -75,10 +75,12 @@ static const uint8_t sig_sha512[] =
     0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03
 };
 
+#ifdef CONFIG_SSL_CERT_VERIFICATION
 static const uint8_t sig_subject_alt_name[] =
 {
     0x55, 0x1d, 0x11
 };
+#endif
 
 static const uint8_t sig_basic_constraints[] =
 {
