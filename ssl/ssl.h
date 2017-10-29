@@ -89,6 +89,7 @@ extern "C" {
 #define SSL_NOT_OK                              -1
 #define SSL_ERROR_DEAD                          -2
 #define SSL_CLOSE_NOTIFY                        -3
+#define SSL_EAGAIN                              -4
 #define SSL_ERROR_CONN_LOST                     -256
 #define SSL_ERROR_RECORD_OVERFLOW               -257
 #define SSL_ERROR_SOCK_SETUP_FAILURE            -258

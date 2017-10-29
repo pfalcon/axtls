@@ -1313,7 +1313,7 @@ int basic_read(SSL *ssl, uint8_t **in_data)
 #else
         if (SOCKET_ERRNO() == EAGAIN || SOCKET_ERRNO() == EWOULDBLOCK)
 #endif
-            return 0;
+            return SSL_EAGAIN;
     }
 
     /* connection has gone, so die */
