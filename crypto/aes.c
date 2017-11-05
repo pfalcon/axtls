@@ -239,7 +239,10 @@ void AES_set_key(AES_CTX *ctx, const uint8_t *key,
     }
 
     /* copy the iv across */
-    memcpy(ctx->iv, iv, 16);
+    if (iv)
+    {
+        memcpy(ctx->iv, iv, 16);
+    }
 }
 
 /**
