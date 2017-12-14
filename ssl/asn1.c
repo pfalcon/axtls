@@ -75,6 +75,7 @@ static const uint8_t sig_sha512[] =
     0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03
 };
 
+#ifdef CONFIG_SSL_CERT_VERIFICATION
 static const uint8_t sig_subject_alt_name[] =
 {
     0x55, 0x1d, 0x11
@@ -89,6 +90,7 @@ static const uint8_t sig_key_usage[] =
 {
     0x55, 0x1d, 0x0f
 };
+#endif
 
 /* CN, O, OU, L, C, ST */
 static const uint8_t g_dn_types[] = { 3, 10, 11, 7, 6, 8 };

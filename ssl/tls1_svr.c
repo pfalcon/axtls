@@ -36,11 +36,13 @@
 #ifdef CONFIG_SSL_ENABLE_SERVER
 
 static const uint8_t g_hello_done[] = { HS_SERVER_HELLO_DONE, 0, 0, 0 };
+#ifdef CONFIG_SSL_CERT_VERIFICATION
 static const uint8_t g_asn1_sha256[] = 
 { 
     0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 
     0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20
 };
+#endif
 
 static int process_client_hello(SSL *ssl);
 static int send_server_hello_sequence(SSL *ssl);
