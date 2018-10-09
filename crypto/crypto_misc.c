@@ -124,7 +124,13 @@ EXP_FUNC void STDCALL RNG_initialize()
     /* start of with a stack to copy across */
     int i;
     memcpy(entropy_pool, &i, ENTROPY_POOL_SIZE);
+    #ifdef __ANDROID__
+    /* Later android releases have rand_r(), but classic ones, e.g.
+       android-3 (1.5) have jrand48(). */
+    jrand48((unsigned short *)entropy_pool);
+    #else
     rand_r((unsigned int *)entropy_pool); 
+    #endif
 #endif
 }
 
