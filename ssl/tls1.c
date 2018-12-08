@@ -295,7 +295,7 @@ EXP_FUNC int STDCALL ssl_read(SSL *ssl, uint8_t **in_data)
     int ret = basic_read(ssl, in_data);
 
     /* check for return code so we can send an alert */
-    if (ret < SSL_OK && ret != SSL_CLOSE_NOTIFY)
+    if (ret < SSL_OK && ret != SSL_CLOSE_NOTIFY && ret != SSL_EAGAIN)
     {
         if (ret != SSL_ERROR_CONN_LOST)
         {
