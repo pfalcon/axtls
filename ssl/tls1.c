@@ -1174,13 +1174,11 @@ int send_packet(SSL *ssl, uint8_t protocol, const uint8_t *in, int length)
         if (ssl->version >= SSL_PROTOCOL_VERSION_TLS1_1)
         {
             uint8_t iv_size = ssl->cipher_info->iv_size;
-            uint8_t *t_buf = alloca(msg_length + iv_size);
-            memcpy(t_buf + iv_size, ssl->bm_data, msg_length);
-            if (get_random(iv_size, t_buf) < 0)
+            memmove(ssl->bm_data + iv_size, ssl->bm_data, msg_length);
+            if (get_random(iv_size, ssl->bm_data) < 0)
                 return SSL_NOT_OK;
 
             msg_length += iv_size;
-            memcpy(ssl->bm_data, t_buf, msg_length);
         }
 
         /* now encrypt the packet */
