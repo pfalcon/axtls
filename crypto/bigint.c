@@ -628,7 +628,7 @@ bigint *bi_import(BI_CTX *ctx, const uint8_t *data, int size)
 
     for (i = size-1; i >= 0; i--)
     {
-        biR->comps[offset] += data[i] << (j*8);
+        biR->comps[offset] += (unsigned int)data[i] << (j*8);
 
         if (++j == COMP_BYTE_SIZE)
         {
